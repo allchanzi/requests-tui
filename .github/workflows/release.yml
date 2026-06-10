@@ -11,8 +11,16 @@ permissions:
   contents: write
 
 jobs:
+  # Create the release once up front so the parallel build jobs only ever upload to an
+  # existing release (avoids a race where several jobs try to create it at the same time).
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2
+
   build:
     name: ${{ matrix.target }}
+    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
